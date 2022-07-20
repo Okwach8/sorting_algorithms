@@ -1,58 +1,63 @@
 #include "sort.h"
-
 /**
- * swap - swaps 2 elements in an int array
- * @array: the array
- * @a: the first element index
- * @b: the second element index
- */
-void swap(int *array, int a, int b)
+ * _swap - swap two numbers.
+ * @a: integer
+ * @b: integer
+ **/
+
+void _swap(int *a, int *b)
 {
-	if (a == b)
-		return;
-	array[a] ^= array[b];
-	array[b] ^= array[a];
-	array[a] ^= array[b];
-}
+    int tmp;
 
+    tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
 /**
- * start_gap - method to find starting gap size
- * @size: size of array
- * Return: kth element of n=3n + 1 that is less than size
- */
-int start_gap(size_t size)
+ * backward_insertion -swap two nodes right left position
+ * @array: array
+ * @gap: gap
+ * @act: actual position in the array
+ **/
+void backward_insertion(int *array, int gap, int act)
 {
-	size_t gap = 1;
+    int i;
 
-	while ((gap * 3 + 1) < size)
-	{
-		gap = gap * 3 + 1;
-	}
-	return (gap);
+    for (i = act - gap; i >= 0; i -= gap, act -= gap)
+    {
+        if (array[i] > array[act])
+            _swap(&array[i], &array[act]);
+        else
+            break;
+    }
 }
-
 /**
- * shell_sort - sorts int array using shell sort
- * @array: int array
- * @size: size of array
- */
+ * shell_sort -Sort an array using shell_sort algorithm
+ * @array: array
+ * @size: size
+ **/
 void shell_sort(int *array, size_t size)
 {
-	size_t gap, i, j;
-	int temp;
+    unsigned int gap = 1, i, j;
 
-	gap = start_gap(size);
-	while (gap)
-	{
-		for (i = gap; i < size; i++)
-		{
-			temp = array[i];
-			for (j = i; j >= gap && array[j - gap] > temp; j -= gap)
-				array[j] = array[j - gap];
-			array[j] = temp;
-		}
-		print_array(array, size);
+    if (array == NULL)
+        return;
+    if (size < 2)
+        return;
+    while (gap < size / 3)
+        gap = gap * 3 + 1;
 
-		gap /= 3;
-	}
+    while (gap > 0)
+    {
+        for (i = 0, j = gap; j < size; i++, j++)
+        {
+            if (array[i] > array[j])
+            {
+                _swap(&array[i], &array[j]);
+                backward_insertion(array, gap, i);
+            }
+        }
+        print_array(array, size);
+        gap /= 3;
+    }
 }
