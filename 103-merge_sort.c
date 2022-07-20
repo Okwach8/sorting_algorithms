@@ -1,94 +1,82 @@
 #include "sort.h"
 
+void merge_subarr(int *subarr, int *buff, size_t front, size_t mid,
+		size_t back);
+void merge_sort_recursive(int *subarr, int *buff, size_t front, size_t back);
+void merge_sort(int *array, size_t size);
+
 /**
- * partition - function that partitions an array.
- *
- * @array: pointer to array of integers to be partitioned.
- * @size: number of integers in array.
- * @beg: start of array.
- * @end: end of array.
- *
- * Return: The partion index.
+ * merge_subarr - Sort a subarray of integers.
+ * @subarr: A subarray of an array of integers to sort.
+ * @buff: A buffer to store the sorted subarray.
+ * @front: The front index of the array.
+ * @mid: The middle index of the array.
+ * @back: The back index of the array.
  */
-int partition(int *array, int beg, int end, int size)
+void merge_subarr(int *subarr, int *buff, size_t front, size_t mid,
+		size_t back)
 {
-	/* select the right most element as pivot */
-	int pivot = array[end];
+	size_t i, j, k = 0;
 
-	/* set partition index as start initially */
-	int partition_index = beg;
+	printf("Merging...\n[left]: ");
+	print_array(subarr + front, mid - front);
 
-	int i, temp;
+	printf("[right]: ");
+	print_array(subarr + mid, back - mid);
 
-	for (i = beg; i < end; i++)
-	{
-		if (array[i] <= pivot)
-		{
-			if (partition_index != i)
-			{
-				temp = array[partition_index];
-				array[partition_index] = array[i];
-				array[i] = temp;
-				print_array(array, size);
-			}
-			partition_index++;
-		}
-	}
-	if (partition_index != end)
-	{
-		/* swap pivot with element at partion index */
-		temp = array[partition_index];
-		array[partition_index] = array[end];
-		array[end] = temp;
-		print_array(array, size);
-	}
-	return (partition_index);
+	for (i = front, j = mid; i < mid && j < back; k++)
+		buff[k] = (subarr[i] < subarr[j]) ? subarr[i++] : subarr[j++];
+	for (; i < mid; i++)
+		buff[k++] = subarr[i];
+	for (; j < back; j++)
+		buff[k++] = subarr[j];
+	for (i = front, k = 0; i < back; i++)
+		subarr[i] = buff[k++];
+
+	printf("[Done]: ");
+	print_array(subarr + front, back - front);
 }
 
 /**
- * quickSort - function that sorts an array of integers using recursion.
- *
- * @array: pointer to array of integers to be sorted.
- * @size: number of integers in array.
- * @beg: start of array.
- * @end: end of array.
- *
- * Return: No return.
+ * merge_sort_recursive - Implement the merge sort algorithm through recursion.
+ * @subarr: A subarray of an array of integers to sort.
+ * @buff: A buffer to store the sorted result.
+ * @front: The front index of the subarray.
+ * @back: The back index of the subarray.
  */
-void quickSort(int *array, int beg, int end, int size)
+void merge_sort_recursive(int *subarr, int *buff, size_t front, size_t back)
 {
-	int partion_index;
+	size_t mid;
 
-	if (beg < end)
+	if (back - front > 1)
 	{
-		partion_index = partition(array, beg, end, size);
-
-		/* recursive call on the left of pivot */
-		quickSort(array, beg, partion_index - 1, size);
-
-		/* recursive call on the right of pivot */
-		quickSort(array, partion_index + 1, end, size);
+		mid = front + (back - front) / 2;
+		merge_sort_recursive(subarr, buff, front, mid);
+		merge_sort_recursive(subarr, buff, mid, back);
+		merge_subarr(subarr, buff, front, mid, back);
 	}
 }
 
 /**
- * quick_sort - sorts an array of integers in ascending order using the,
- * Quick sort sort algorithm.
+ * merge_sort - Sort an array of integers in ascending
+ *              order using the merge sort algorithm.
+ * @array: An array of integers.
+ * @size: The size of the array.
  *
- * @array: pointer to array of integers to be sorted.
- * @size: number of integers in array.
- *
- * Implement the Lomuto partition scheme.
- * The pivot should always be the last element of the partition being sorted.
- * Print the array after each time you swap two elements.
- *
- * Return: No return.
+ * Description: Implements the top-down merge sort algorithm.
  */
-void quick_sort(int *array, size_t size)
+void merge_sort(int *array, size_t size)
 {
-	/* An array does not need to be sorted if its size is less than 2 */
-	if (!array || size < 2)
+	int *buff;
+
+	if (array == NULL || size < 2)
 		return;
 
-	quickSort(array, 0, size - 1, size);
+	buff = malloc(sizeof(int) * size);
+	if (buff == NULL)
+		return;
+
+	merge_sort_recursive(array, buff, 0, size);
+
+	free(buff);
 }
